@@ -1,0 +1,176 @@
+# Pythonコード解説：Webページから複数画像を自動ダウンロード
+
+---
+
+## 🔰 このコードでできること
+
+このスクリプトは、特定のWebページを調査して、ページ内にあるすべての画像を取得し、**ローカルの「download2」フォルダに保存**します。
+
+また、**1画像ごとに1秒の待機時間を入れる**ことで、相手サーバーへの負荷も考慮しています。
+
+---
+
+## 〈実行したPythonコード〉
+
+```python
+import requests
+from bs4 import BeautifulSoup
+from pathlib import Path
+import urllib
+import time
+
+# Webページを取得して解析する
+load_url = "https://www.ymori.com/books/python2nen/test2.html"
+html = requests.get(load_url)
+soup = BeautifulSoup(html.content, "html.parser")
+
+# 保存用フォルダを作る
+out_folder = Path("download2")
+out_folder.mkdir(exist_ok=True)
+
+# すべてのimgタグを検索し、リンクを取得する
+for element in soup.find_all("img"):
+    src = element.get("src")
+
+    # 絶対URLを作り、画像データを取得する
+    image_url = urllib.parse.urljoin(load_url, src)
+    imgdata = requests.get(image_url)
+
+    # URLからファイル名を取得して保存パスを作成
+    filename = image_url.split("/")[-1]
+    out_path = out_folder.joinpath(filename)
+
+    # 画像データを保存
+    with open(out_path, mode="wb") as f:
+        f.write(imgdata.content)
+
+    # アクセス後に1秒待機
+    time.sleep(1)
+
+```
+
+---
+
+## 🧩 使用しているライブラリと役割
+
+| ライブラリ | 役割 |
+| --- | --- |
+| `requests` | 指定したURLのWebページや画像を取得 |
+| `BeautifulSoup` | HTML構造を解析して画像タグなどを抽出しやすくする |
+| `pathlib` | フォルダやファイルのパスをPythonオブジェクトとして簡潔に操作できる |
+| `urllib.parse` | 相対URLを絶対URLに変換（`urljoin`） |
+| `time` | 処理の一時停止（サーバー負荷を下げるための間隔を設ける） |
+
+---
+
+## 🔍 各ステップの解説
+
+### ① Webページの取得と解析
+
+```python
+html = requests.get(load_url)
+soup = BeautifulSoup(html.content, "html.parser")
+
+```
+
+- `requests.get(...)`: WebページのHTMLを取得
+- `BeautifulSoup(...)`: HTMLを解析し、タグ構造を木構造として扱えるようにする
+
+🧠 `soup` は「HTMLを読み解きやすく整頓したオブジェクト」
+
+---
+
+### ② 保存先フォルダの作成
+
+```python
+out_folder = Path("download2")
+out_folder.mkdir(exist_ok=True)
+
+```
+
+- `Path(...)`: 保存用のフォルダ（ここでは `download2`）を指定
+- `.mkdir(exist_ok=True)`: すでにフォルダが存在していてもエラーにならない
+
+---
+
+### ③ 画像リンクの抽出と取得
+
+```python
+for element in soup.find_all("img"):
+    src = element.get("src")
+    image_url = urllib.parse.urljoin(load_url, src)
+    imgdata = requests.get(image_url)
+
+```
+
+| ステップ | 意味 |
+| --- | --- |
+| `soup.find_all("img")` | ページ内のすべての `<img>` タグをリストとして取得 |
+| `.get("src")` | 各画像タグの `src` 属性から画像のパスを抽出 |
+| `urljoin(...)` | 相対パスを絶対URLに変換（例: `/img/sample.png` → `https://.../img/sample.png`） |
+| `requests.get(image_url)` | 実際の画像データを取得（バイナリ形式） |
+
+---
+
+### ④ ファイル名の抽出と保存先の決定
+
+```python
+filename = image_url.split("/")[-1]
+out_path = out_folder.joinpath(filename)
+
+```
+
+- `split("/")[-1]`: URLからファイル名だけを取り出す
+- `joinpath(...)`: フォルダパスとファイル名を組み合わせて、保存パスを作る
+
+---
+
+### ⑤ ファイルに保存（バイナリ）
+
+```python
+with open(out_path, mode="wb") as f:
+    f.write(imgdata.content)
+
+```
+
+- `mode="wb"`: バイナリ（画像や動画など）で書き込み
+- `with` 文: 自動でファイルを閉じてくれる安全な方法
+
+---
+
+### ⑥ 1秒の待機時間
+
+```python
+time.sleep(1)
+
+```
+
+🔁 この行があることで、サーバーに優しく、連続アクセスによるブロックなどを防げます。
+
+スクレイピングの**マナーとしてとても大事なステップ**です。
+
+---
+
+## ✅ 処理フローまとめ
+
+| 処理ステップ | 内容 | 目的 |
+| --- | --- | --- |
+| ① | WebページのHTMLを取得 | スクレイピングの対象を取得 |
+| ② | HTMLを解析 | 画像などを抽出しやすい形に変換 |
+| ③ | `<img>`タグの`src`属性を取得 | 画像のURLを得る |
+| ④ | URLを絶対パスに変換 | 画像ファイルのフルパスを正確に取得 |
+| ⑤ | 画像データを取得 | バイナリ形式の画像データを手に入れる |
+| ⑥ | ファイル名を決定し、保存パス作成 | 正しい場所に正しい名前で保存できるようにする |
+| ⑦ | データを保存 | 実際にローカルに画像を保存する |
+| ⑧ | 1秒待機 | サーバーへのアクセス負荷を軽減 |
+
+---
+
+## 応用ポイント
+
+- `download2` を他のフォルダ名にすれば、カテゴリごとに分けて保存も可能
+- `sleep(1)` を調整すれば、間隔を変えられる（例：0.5秒、2秒）
+- `<img>` 以外にも `<a>` タグで PDF や ZIP を探すことも可能
+
+#参考書
+「Python＿スクレイピングのしくみ」p72～73
