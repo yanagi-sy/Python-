@@ -1,0 +1,165 @@
+# Pythonで画像リンクを抽出：実行コードと解説
+
+---
+
+### ✅ 実行したコード（画像URLの抽出）
+
+```python
+import requests
+from bs4 import BeautifulSoup
+import urllib
+
+# Webページを取得して解析する
+load_url = "https://www.ymori.com/books/python2nen/test2.html"
+html = requests.get(load_url)
+soup = BeautifulSoup(html.content, "html.parser")
+
+# すべてのimgタグを検索し、リンクを取得する
+for element in soup.find_all("img"):
+    src = element.get("src")
+
+    # 絶対URLと、ファイルを表示する
+    image_url = urllib.parse.urljoin(load_url, src)
+    filename = image_url.split("/")[-1]
+    print(image_url, ">>", filename)
+
+```
+
+---
+
+## 📌 目的
+
+このコードは次のような目的で書かれています：
+
+> 「指定されたウェブページにあるすべての画像のURLを取得し、そのファイル名と一緒に表示する」
+> 
+
+---
+
+## 🧩 各部分の解説
+
+### ① ライブラリのインポート
+
+```python
+import requests
+from bs4 import BeautifulSoup
+import urllib
+
+```
+
+| ライブラリ | 役割 |
+| --- | --- |
+| `requests` | ウェブページの内容（HTML）を取得する |
+| `BeautifulSoup` | HTMLを解析し、特定の要素（ここでは画像）を簡単に取り出せるようにする |
+| `urllib.parse` | 相対パスを絶対URLに変換する（`urljoin`） |
+
+---
+
+### ② Webページを取得してHTMLを解析
+
+```python
+load_url = "https://www.ymori.com/books/python2nen/test2.html"
+html = requests.get(load_url)
+soup = BeautifulSoup(html.content, "html.parser")
+
+```
+
+### 🔍 詳細解説
+
+- `requests.get(load_url)`
+    
+    → 指定URLのHTMLを取得します。
+    
+- `html.content`
+    
+    → 取得したページの「中身」（HTMLテキスト）
+    
+- `BeautifulSoup(html.content, "html.parser")`
+    
+    → HTMLを**構造化された形式（木構造）**に変換
+    
+    → これにより、`<img>` や `<a>` などのタグを簡単に探し出せる
+    
+
+---
+
+### ③ 画像タグ（）をすべて取り出す
+
+```python
+for element in soup.find_all("img"):
+
+```
+
+- `soup.find_all("img")`
+    
+    → ページ内のすべての `<img>` タグを取得します。
+    
+- `for element in ...`
+    
+    → 各 `<img>` タグを1つずつ取り出して処理します。
+    
+
+---
+
+### ④ 画像のURLとファイル名を取得
+
+```python
+src = element.get("src")
+image_url = urllib.parse.urljoin(load_url, src)
+filename = image_url.split("/")[-1]
+
+```
+
+| ステップ | 解説 |
+| --- | --- |
+| `element.get("src")` | `<img>` タグの `src` 属性から画像パスを取得（相対パスの場合あり） |
+| `urljoin(load_url, src)` | 相対パスだった場合に絶対URLへ変換 |
+| `split("/")[-1]` | 最後の `/` 以降を抽出 → ファイル名だけを取り出す |
+
+---
+
+### ⑤ 結果を表示
+
+```python
+print(image_url, ">>", filename)
+
+```
+
+- `print(...)` により、画像のURLとファイル名が `>>` 付きで出力されます。
+
+### 📄 出力例
+
+```
+https://www.ymori.com/books/python2nen/images/sample1.png >> sample1.png
+https://www.ymori.com/books/python2nen/images/sample2.jpg >> sample2.png
+
+```
+
+---
+
+## ✅ まとめ：このコードの流れ
+
+| 手順 | 処理内容 | 使用する技術／関数 |
+| --- | --- | --- |
+| ① | WebページのHTMLを取得 | `requests.get()` |
+| ② | HTMLを解析して木構造に変換 | `BeautifulSoup(html.content, parser)` |
+| ③ | 画像タグ（`<img>`）をすべて取得 | `soup.find_all("img")` |
+| ④ | 各画像のURLとファイル名を抽出 | `get("src")`, `urljoin`, `split("/")` |
+| ⑤ | 情報を出力 | `print()` |
+
+---
+
+## 💡 補足：BeautifulSoupのイメージ
+
+> HTMLはごちゃごちゃした「設計図」
+ ↓
+> **BeautifulSoupで読みやすく整理された構造（パースツリー）に変換**
+ ↓
+> **欲しい要素（画像、リンクなど）を簡単に探せる**
+
+
+`soup` オブジェクトは、HTMLを「コンピュータが読める形」に整理してくれた状態です。
+
+そのため、`soup.find_all()` や `soup.find()` などの関数を使うことで、非常に簡単に必要な情報を抽出できる。
+
+引用：Python2年生(第二版)スクレイピングのしくみp71
