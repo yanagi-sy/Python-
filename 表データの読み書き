@@ -1,0 +1,171 @@
+# 📊 表データの読み書き（pandas入門完全ガイド）
+
+---
+
+## 📁 使用するCSVファイルの内容 `test.csv`
+
+```
+名前,国語,数学,英語,理科,社会
+A太,83,89,76,97,76
+B介,66,93,75,88,76
+C子,100,84,96,82,94
+D郎,60,73,63,52,70
+E美,92,62,84,80,78
+F菜,96,92,94,92,90
+
+```
+
+---
+
+## 📥 1. CSVの読み込みと表示
+
+```python
+import pandas as pd
+pd.set_option("display.unicode.east_asian_width", True)
+
+df = pd.read_csv("test.csv")
+print(df)
+
+```
+
+### ✔️ 解説
+
+| 処理 | 説明 |
+| --- | --- |
+| `pd.read_csv()` | CSVファイルをDataFrameに読み込む |
+| `pd.set_option(...)` | 日本語などの全角文字の列表示を整える |
+| `print(df)` | 表データ（DataFrame）を表示 |
+
+---
+
+## 📑 2. 特定の列を抽出する
+
+```python
+import pandas as pd
+pd.set_option("display.unicode.east_asian_width", True)
+
+df = pd.read_csv("test.csv")
+
+print("国語の列の1次元データ\n", df["国語"])
+print("国語の列の表データ\n", df[["国語"]])
+print("国語と数学の列の表データ\n", df[["国語", "数学"]])
+
+```
+
+### ✔️ 解説
+
+| 書き方 | 返り値 | 概要 |
+| --- | --- | --- |
+| `df["列名"]` | Series | 単一の列（1次元）を取得 |
+| `df[["列名"]]` | DataFrame | 表形式（2次元）で取得 |
+| `df[["列A","列B"]]` | DataFrame | 複数列を抽出 |
+
+---
+
+## 🔍 3. 特定の行やセルを抽出（`.loc`）
+
+```python
+import pandas as pd
+pd.set_option("display.unicode.east_asian_width", True)
+
+df = pd.read_csv("test.csv")
+
+print("C子の行（Series）\n", df.loc[2])
+print("C子の行（表形式）\n", df.loc[[2]])
+print("C子とD郎の行\n", df.loc[[2, 3]])
+print("C子の国語点\n", df.loc[2]["国語"])
+
+```
+
+### ✔️ 解説
+
+| 書き方 | 意味 |
+| --- | --- |
+| `df.loc[2]` | インデックス2（C子）の行をSeriesで取得 |
+| `df.loc[[2]]` | 同上だがDataFrameで取得 |
+| `df.loc[[2,3]]` | 複数の行をまとめて取得 |
+| `df.loc[2]["国語"]` | C子の国語の点数を取得 |
+
+---
+
+## ➕ 4. 列・行を追加する
+
+```python
+import pandas as pd
+pd.set_option("display.unicode.east_asian_width", True)
+
+df = pd.read_csv("test.csv")
+
+df["美術"] = [68, 73, 82, 77, 94, 96]
+print("列データ（美術）を追加\n", df)
+
+df.loc[6] = ["G恵", 90, 92, 94, 96, 92, 98]
+print("行データ（G恵）を追加\n", df)
+
+```
+
+### ✔️ 解説
+
+| 操作 | 説明 |
+| --- | --- |
+| `df["新しい列"] = リスト` | 新しい列を追加 |
+| `df.loc[n] = リスト` | 新しい行を追加（インデックスを指定） |
+
+---
+
+## 🧹 5. 行・列を削除する
+
+```python
+import pandas as pd
+pd.set_option("display.unicode.east_asian_width", True)
+
+df = pd.read_csv("test.csv")
+
+print("「名前」の列を削除\n", df.drop("名前", axis=1))
+print("インデックス2の行を削除\n", df.drop(2, axis=0))
+
+```
+
+### ✔️ 解説
+
+| 操作 | 構文例 | 説明 |
+| --- | --- | --- |
+| 列を削除 | `df.drop("列名", axis=1)` | 指定列を削除（`axis=1`） |
+| 行を削除 | `df.drop(行番号, axis=0)` | 指定行を削除（`axis=0`） |
+| 元データに反映させたい場合 | `df.drop(..., inplace=True)` | 元の `df` を更新 |
+
+---
+
+## 🧠 おさらい表：基本操作まとめ
+
+| 操作内容 | 構文例 | 説明 |
+| --- | --- | --- |
+| CSV読み込み | `pd.read_csv("test.csv")` | ファイルをDataFrameに読み込む |
+| 表示 | `print(df)` | 表形式で内容を確認 |
+| 特定列取得 | `df["国語"]`, `df[["国語"]]` | 列を1次元/2次元で取得 |
+| 特定行取得 | `df.loc[2]`, `df.loc[[2]]` | 行をSeries/DataFrameとして取得 |
+| セル値取得 | `df.loc[2]["国語"]` | 指定の行・列の値を取得 |
+| 列追加 | `df["新列"] = [...]` | 列を新しく追加 |
+| 行追加 | `df.loc[n] = [...]` | 新しい行をインデックス付きで追加 |
+| 列削除 | `df.drop("列名", axis=1)` | 指定列を削除（新DataFrameを返す） |
+| 行削除 | `df.drop(行番号, axis=0)` | 指定行を削除（新DataFrameを返す） |
+
+---
+
+## 📌 メモ：表示を整えるオプション
+
+```python
+pd.set_option("display.unicode.east_asian_width", True)
+
+```
+
+- 日本語などの全角文字がある場合に、列のズレを防ぐ
+- Jupyter Notebookやターミナルでの出力を整えるために便利
+
+---
+
+## 🎯 活用例
+
+- 学校の成績管理
+- 商品一覧の読み書き
+- 簡易データ分析の前処理
