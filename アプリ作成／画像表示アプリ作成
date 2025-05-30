@@ -1,0 +1,188 @@
+##画像表示アプリの作成
+
+（**tkinter + Pillow の活用例**）
+##学習目的
+・Pythonでの画像利用
+・tikinterを利用した簡易アプリ作成の体験
+---
+
+## 🎯 このプログラムでできること
+
+* **「ファイルを開く」ボタン** をクリックして画像ファイルを選択
+* 選択した画像がウィンドウ内に表示される
+* 画像は **自動で300×300ピクセルにリサイズ** される
+
+---
+
+## 📚 使用するライブラリ
+
+| ライブラリ                | 役割                   |
+| -------------------- | -------------------- |
+| `tkinter`            | Python標準GUIライブラリ     |
+| `tkinter.filedialog` | ファイル選択ダイアログを表示       |
+| `PIL.Image`          | 画像を開いたりリサイズしたりする     |
+| `PIL.ImageTk`        | tkinter内で画像表示用の形式に変換 |
+
+---
+
+## 🖥️ サンプルコード
+
+```python
+import tkinter as tk
+import tkinter.filedialog as fd
+import PIL.Image
+import PIL.ImageTk
+
+# 画像を表示する関数
+def dispPhoto(path):
+    newImage = PIL.Image.open(path).resize((300,300))
+    imageData = PIL.ImageTk.PhotoImage(newImage)
+    imageLabel.configure(image=imageData)
+    imageLabel.image = imageData
+
+# ファイルを選択する関数
+def openFile():
+    fpath = fd.askopenfilename()
+    if fpath:
+        dispPhoto(fpath)
+
+# メインウィンドウ作成
+root = tk.Tk()
+root.geometry("400x350")
+
+# ウィジェット作成
+btn = tk.Button(text="ファイルを開く", command=openFile)
+imageLabel = tk.Label()
+
+# ウィジェット配置
+btn.pack()
+imageLabel.pack()
+
+# イベントループ開始
+tk.mainloop()
+```
+
+---
+
+## 🧩 各パートの解説
+
+---
+
+### ① ライブラリのインポート
+
+```python
+import tkinter as tk
+import tkinter.filedialog as fd
+import PIL.Image
+import PIL.ImageTk
+```
+
+| モジュール                | 説明                     |
+| -------------------- | ---------------------- |
+| `tkinter`            | 標準GUIライブラリ             |
+| `tkinter.filedialog` | ファイル選択ダイアログを開く         |
+| `PIL.Image`          | 画像を開いて処理する             |
+| `PIL.ImageTk`        | tkinter内で画像を表示できる形式に変換 |
+
+---
+
+### ② 画像表示の関数
+
+```python
+def dispPhoto(path):
+    newImage = PIL.Image.open(path).resize((300,300))
+    imageData = PIL.ImageTk.PhotoImage(newImage)
+    imageLabel.configure(image=imageData)
+    imageLabel.image = imageData
+```
+
+| 処理                                | 説明                    |
+| --------------------------------- | --------------------- |
+| `PIL.Image.open(path)`            | 画像ファイルを開く             |
+| `.resize((300,300))`              | サイズを300×300にリサイズ      |
+| `PIL.ImageTk.PhotoImage`          | tkinterで使える画像形式に変換    |
+| `imageLabel.configure(image=...)` | ラベルウィジェットに画像を表示       |
+| `imageLabel.image = imageData`    | 画像データへの参照を保持（消えるのを防止） |
+
+---
+
+### ③ ファイル選択の関数
+
+```python
+def openFile():
+    fpath = fd.askopenfilename()
+    if fpath:
+        dispPhoto(fpath)
+```
+
+| 処理                     | 説明                   |
+| ---------------------- | -------------------- |
+| `fd.askopenfilename()` | ファイル選択ダイアログを表示       |
+| `if fpath:`            | ファイルが選ばれた場合のみ表示処理を行う |
+
+---
+
+### ④ メインウィンドウとウィジェットの作成・配置
+
+```python
+root = tk.Tk()
+root.geometry("400x350")
+```
+
+* メインウィンドウ作成
+* ウィンドウサイズ：幅400ピクセル、高さ350ピクセル
+
+```python
+btn = tk.Button(text="ファイルを開く", command=openFile)
+imageLabel = tk.Label()
+btn.pack()
+imageLabel.pack()
+```
+
+| ウィジェット             | 説明                     |
+| ------------------ | ---------------------- |
+| `Button`           | 「ファイルを開く」ボタン           |
+| `command=openFile` | ボタン押下時に `openFile` を実行 |
+| `Label`            | 画像を表示するラベル             |
+| `.pack()`          | 縦に並べて配置                |
+
+---
+
+### ⑤ イベントループ開始
+
+```python
+tk.mainloop()
+```
+
+* GUIアプリがここで開始される
+* ユーザーが閉じるまでウィンドウは開いたまま
+
+---
+
+## ✅ 全体の動作まとめ
+
+| 操作                | 結果                      |
+| ----------------- | ----------------------- |
+| ボタン「ファイルを開く」押下    | ファイル選択ダイアログが開く          |
+| 画像ファイルを選択         | ウィンドウ内に300×300で画像が表示される |
+| その後も別の画像を選べば再表示可能 | 動的に表示を更新                |
+
+---
+
+## 💡 応用例
+
+* **画像ビューアアプリ**
+* 簡易写真整理ソフト
+* 機械学習用画像データの確認ツール
+* デザイン確認用のビューワ作成
+
+---
+
+## 🚀 総まとめ
+
+| 操作内容       | 技術・ライブラリ                     | 学べること       |
+| ---------- | ---------------------------- | ----------- |
+| ファイルダイアログ  | `tkinter.filedialog`         | GUIからファイル選択 |
+| 画像読み込み     | `PIL.Image.open()`           | 画像ファイルの読み込み |
+| 画像リサイズ     | `.resize()`                  | サイズ変更       |
+| GUIウィンドウ作成 | `tk.Tk()`, `Button`, `Label` | GUIアプリ構築の基礎 |
