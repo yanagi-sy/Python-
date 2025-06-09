@@ -1,0 +1,221 @@
+# 📊 表データの読み書き【可視化編】 グラフで表示
+
+---
+
+## 🎯 この学習でできること
+
+✅ pandas＋matplotlib を使い、CSVデータから以下のグラフを描ける：
+
+* 折れ線グラフ
+* 縦棒グラフ
+* 横棒グラフ
+* 積み上げ棒グラフ
+* 箱ひげ図
+* 面グラフ
+* 円グラフ
+* 転置データの棒グラフ
+* カラー指定付き棒グラフ
+
+---
+
+## 📚 使用ライブラリ（共通設定）
+
+```python
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# 日本語フォント設定
+plt.rcParams["font.family"] = "sans-serif"
+plt.rcParams["font.sans-serif"] = [
+    "Hiragino Maru Gothic Pro", "Hiragino sans",
+    "BIZ UDGothic", "MS Gothic"
+]
+```
+
+### ✔️ フォント設定のポイント
+
+* `plt.rcParams` で **matplotlib全体のデフォルト設定** を変更
+* `"sans-serif"` を指定し、日本語が正しく表示できるフォントリストを優先度順に並べる
+  → **日本語ラベルが文字化けせずに表示できる**
+
+---
+
+## 🗂️ 使用するCSVファイル例
+
+```
+名前,国語,数学,英語,理科,社会
+A太,83,89,76,97,76
+B介,66,93,75,88,76
+C子,100,84,96,82,94
+D郎,60,73,63,52,70
+E美,92,62,84,80,78
+F菜,96,92,94,92,90
+```
+
+---
+
+## 1️⃣ **基本：折れ線グラフ**
+
+```python
+df = pd.read_csv("test.csv")
+df.plot()
+plt.show()
+```
+
+### ✔️ ポイント
+
+* **各列が1本の線**として折れ線グラフ化
+* X軸はDataFrameのindex（デフォルトで0,1,2...）
+
+---
+
+## 2️⃣ **棒グラフ・横棒グラフ・積み上げ棒グラフ・箱ひげ図・面グラフ**
+
+```python
+df = pd.read_csv("test.csv", index_col=0)
+
+# 縦棒グラフ
+df.plot.bar()
+plt.legend(loc="lower right")
+plt.show()
+
+# 横棒グラフ
+df.plot.barh()
+plt.legend(loc="lower left")
+plt.show()
+
+# 積み上げ棒グラフ
+df.plot.bar(stacked=True)
+plt.legend(loc="lower right")
+plt.show()
+
+# 箱ひげ図
+df.plot.box()
+plt.show()
+
+# 面グラフ
+df.plot.area()
+plt.legend(loc="lower right")
+plt.show()
+```
+
+### ✔️ ポイント
+
+| グラフ      | メソッド                      |
+| -------- | ------------------------- |
+| 縦棒グラフ    | `.plot.bar()`             |
+| 横棒グラフ    | `.plot.barh()`            |
+| 積み上げ棒グラフ | `.plot.bar(stacked=True)` |
+| 箱ひげ図     | `.plot.box()`             |
+| 面グラフ     | `.plot.area()`            |
+
+---
+
+## 3️⃣ **特定の列・行のグラフ化**
+
+### ✅ 国語のみ 横棒グラフ
+
+```python
+df["国語"].plot.barh()
+plt.legend(loc="lower left")
+plt.show()
+```
+
+---
+
+### ✅ 国語＋数学 横棒グラフ
+
+```python
+df[["国語", "数学"]].plot.barh()
+plt.legend(loc="lower left")
+plt.show()
+```
+
+---
+
+### ✅ C子 の成績 横棒グラフ
+
+```python
+df.loc["C子"].plot.barh()
+plt.legend(loc="lower left")
+plt.show()
+```
+
+---
+
+### ✅ C子 の成績 円グラフ
+
+```python
+df.loc["C子"].plot.pie(labeldistance=0.6)
+plt.legend(loc="lower left")
+plt.show()
+```
+
+---
+
+## 4️⃣ **転置して棒グラフ化（行⇔列入れ替え）**
+
+```python
+df.T.plot.bar()
+plt.legend(loc="lower right")
+plt.show()
+```
+
+### ✔️ ポイント
+
+* `df.T` → DataFrameを **転置**（行列入れ替え）
+* 生徒ごとの教科別棒グラフが作れる（逆視点のグラフになる）
+
+---
+
+## 5️⃣ **転置＋カラー指定付き棒グラフ**
+
+```python
+colorlist = ["skyblue", "steelblue", "tomato", "cadetblue", "orange", "sienna"]
+
+df.T.plot.bar(color=colorlist)
+plt.legend(loc="lower right")
+plt.show()
+```
+
+### ✔️ ポイント
+
+* `color=colorlist` で **棒グラフの色を明示的に指定**
+* リストの色が **列の順番に対応**する
+
+---
+
+## ✅ **今回学んだ可視化操作まとめ**
+
+| 操作内容     | コマンド例                       |
+| -------- | --------------------------- |
+| 折れ線グラフ   | `df.plot()`                 |
+| 縦棒グラフ    | `df.plot.bar()`             |
+| 横棒グラフ    | `df.plot.barh()`            |
+| 積み上げ棒グラフ | `df.plot.bar(stacked=True)` |
+| 箱ひげ図     | `df.plot.box()`             |
+| 面グラフ     | `df.plot.area()`            |
+| 特定列のグラフ  | `df["列名"].plot.xxx()`       |
+| 特定行のグラフ  | `df.loc["行名"].plot.xxx()`   |
+| 円グラフ     | `.plot.pie()`               |
+| 転置棒グラフ   | `df.T.plot.bar()`           |
+| 色付き棒グラフ  | `.plot.bar(color=...)`      |
+
+---
+
+## 🎯 学びのポイント
+
+✅ pandas × matplotlib の組み合わせで **多様なグラフが簡単に作成可能**
+✅ 転置や特定列・行のグラフ化を組み合わせることで **自由度が高まる**
+✅ **フォント設定**は日本語表示に必須（特にJupyter Notebookやmatplotlib単体使用時）
+
+---
+
+## 🚀 次のおすすめチャレンジ
+
+* [ ] **棒グラフに数値ラベルを追加**
+* [ ] **散布図（`.plot.scatter()`）の作成**
+* [ ] **ヒストグラム（`.plot.hist()`）の作成**
+* [ ] **スタイル（線種・色・太さ・マーカー）変更**
+* [ ] **複数グラフのサブプロット化**
+
