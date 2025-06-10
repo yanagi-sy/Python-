@@ -1,0 +1,118 @@
+# 📘 Excelファイルの読み書き
+
+## ✅ 概要
+
+この学習記録では、Python の `pandas` と `openpyxl` を活用し、CSV ファイルの読み込み、ソート処理、および Excel ファイルの保存・読み出しについて学びました。
+
+---
+
+## 🔧 使用ライブラリ
+
+```python
+import pandas as pd
+import openpyxl
+```
+
+* **pandas**：表データを効率的に操作・解析するためのライブラリ。
+* **openpyxl**：Excel（.xlsx）形式のファイル読み書きに必要。
+
+---
+
+## 📥 CSVファイルをExcelに書き出す（基本）
+
+```python
+df = pd.read_csv("test.csv")
+kokugo = df.sort_values("国語", ascending=False)
+kokugo.to_excel("csv_to_excel1.xlsx")
+```
+
+📝 **ポイント**
+
+* `read_csv()`：CSVファイルの読み込み。
+* `sort_values("国語", ascending=False)`：「国語」列で降順ソート。
+* `to_excel()`：Excelファイルとして保存（デフォルトでインデックスあり）。
+
+---
+
+## 📄 インデックスを非表示にし、シート名を指定して保存
+
+```python
+df = pd.read_csv("test.csv")
+kokugo = df.sort_values("国語", ascending=False)
+kokugo.to_excel("csv_to_excel2.xlsx", index=False, sheet_name="国語でソート")
+```
+
+📝 **ポイント**
+
+* `index=False`：インデックス（行番号）を保存しない。
+* `sheet_name="国語でソート"`：シート名をカスタマイズ。
+
+---
+
+## 🗂 複数のシートを持つ Excel ファイルを作成
+
+```python
+df = pd.read_csv("test.csv")
+kokugo = df.sort_values("国語", ascending=False)
+
+with pd.ExcelWriter("csv_to_excel3.xlsx") as writer:
+    df.to_excel(writer, index=False, sheet_name="元のデータ")
+    kokugo.to_excel(writer, index=False, sheet_name="国語でソート")
+```
+
+📝 **ポイント**
+
+* `ExcelWriter` を使うと、**1つのExcelに複数のシートを保存可能**。
+* `with` 文により、安全にファイルを閉じることができる。
+
+---
+
+## 📤 Excelファイルの読み込み（最初のシート）
+
+```python
+df = pd.read_excel("csv_to_excel2.xlsx")
+print(df)
+```
+
+📝 **ポイント**
+
+* `read_excel()`：デフォルトで**先頭のシート**を読み込む。
+
+---
+
+## 📤 特定のシートを読み込む
+
+```python
+df = pd.read_excel("csv_to_excel3.xlsx", sheet_name="国語でソート")
+print(df)
+```
+
+📝 **ポイント**
+
+* `sheet_name="..."` を指定することで、任意のシートを読み込み可能。
+
+---
+
+## 📚 全シートをまとめて読み込む
+
+```python
+sheets = pd.read_excel("csv_to_excel3.xlsx", sheet_name=None)
+```
+
+📝 **ポイント**
+
+* `sheet_name=None` にすると、すべてのシートを辞書型で読み込める。
+* `sheets["シート名"]` で個別アクセスが可能。
+
+---
+
+## ✅ まとめ
+
+| 処理        | 関数 / 機能            |
+| --------- | ------------------ |
+| CSV読み込み   | `pd.read_csv()`    |
+| 並べ替え      | `df.sort_values()` |
+| Excelに保存  | `df.to_excel()`    |
+| Excel読み込み | `pd.read_excel()`  |
+| 複数シート保存   | `pd.ExcelWriter()` |
+| 複数シート読み込み | `sheet_name=None`  |
