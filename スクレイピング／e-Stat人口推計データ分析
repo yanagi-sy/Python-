@@ -1,0 +1,144 @@
+# 📊 e-Stat人口推計データ分析 学習記録
+
+データ元：e-Stat「FEH\_00200524\_250610233446.csv」
+目的：Python（pandas・matplotlib）を用いた人口データの読み込み・整形・可視化の学習
+
+---
+
+## ✅ ① 2022年の人口データを棒グラフ化
+
+```python
+import pandas as pd
+import matplotlib.pyplot as plt
+plt.rcParams["font.family"]="sans-serif"
+plt.rcParams["font.sans-serif"]=["Hiragino Maru Gothic Pro","Hiragino sans","BIZ UDGothic","MS Gothic"]
+
+#CSVファイルをデータフレームに読み込む
+df=pd.read_csv("FEH_00200524_250610233446.csv",index_col="全国・都道府県",encoding="UTF-8")
+
+#2022年の列データで棒グラフを作って表示する
+df["2022年"]=pd.to_numeric(df["2022年"].str.replace(",",""))
+print(df["2022年"])
+df["2022年"].plot.bar()
+plt.show()
+```
+
+### 🔍 解説
+
+* `read_csv()`：全国・都道府県別の人口データCSVを読み込む。
+* `str.replace(",", "")`：数値に含まれるカンマを除去。
+* `pd.to_numeric()`：文字列を数値型へ変換。
+* `plot.bar()`：2022年の人口を棒グラフとして可視化。
+
+---
+
+## ✅ ② 「全国」行を除き、2022年人口を棒グラフで表示
+
+```python
+import pandas as pd
+import matplotlib.pyplot as plt
+plt.rcParams["font.family"]="sans-serif"
+plt.rcParams["font.sans-serif"]=["Hiragino Maru Gothic Pro","Hiragino sans","BIZ UDGothic","MS GOthic"]
+
+#CSVファイルをデータフレームで読み込む
+df=pd.read_csv("FEH_00200524_250610233446.csv",index_col="全国・都道府県",encoding="UTF-8")
+
+#2022年の列データで棒グラフを作って表示する
+df=df.drop("全国",axis=0)
+df["2022年"]=pd.to_numeric(df["2022年"].str.replace(",",""))
+df["2022年"].plot.bar(figsize=(10,6))
+plt.show()
+```
+
+### 🔍 解説
+
+* `drop("全国", axis=0)`：全国合計の行を削除（分析対象は都道府県単位）。
+* `figsize=(10,6)`：グラフのサイズを指定。
+* 全体の構造は①と同じ。
+
+---
+
+## ✅ ③ 2022年人口を多い順に並べて棒グラフ表示
+
+```python
+import pandas as pd
+import matplotlib.pyplot as plt
+plt.rcParams["font.family"]="sans-serif"
+plt.rcParams["font.sans-serif"]=["Hiragino Maru Gothic Pro","Hiragino sans","BIZ UDGothic","MS Gothic"]
+
+#CSVファイルをデータフレームで読み込む
+df=pd.read_csv("FEH_00200524_250610233446.csv",index_col="全国・都道府県",encoding="UTF-8")
+
+#2022年の列データで人口の多い順の棒グラフを作って表示する
+df=df.drop("全国",axis=0)
+df["2022年"]=pd.to_numeric(df["2022年"].str.replace(",",""))
+df=df.sort_values("2022年",ascending=False)
+df["2022年"].plot.bar(figsize=(10,6))
+plt.show()
+```
+
+### 🔍 解説
+
+* `sort_values("2022年", ascending=False)`：人口が多い順に並び替え。
+* 棒グラフは降順で都道府県が並び、視覚的に傾向が見やすくなる。
+
+---
+
+## ✅ ④ 人口増減（2022年 - 2021年）を算出・可視化
+
+```python
+import pandas as pd
+import matplotlib.pyplot as plt
+plt.rcParams["font.family"]="sans-serif"
+plt.rcParams["font.sans-serif"]=["Hiragino Maru Gothic Pro","Hiragino sans","BIZ UDGothic","MS Gothic"]
+
+#CSVファイルをデータフレームで読み込む
+df=pd.read_csv("FEH_00200524_250610233446.csv",index_col="全国・都道府県",encoding="UTF-8")
+
+#2021年と2022年の列データで棒グラフを作って表示する
+df=df.drop("全国",axis=0)
+df["2021年"]=pd.to_numeric(df["2021年"].str.replace(",",""))
+df["2022年"]=pd.to_numeric(df["2022年"].str.replace(",",""))
+df["人口増減"]=df["2022年"]-df["2021年"]
+df=df.sort_values("人口増減",ascending=False)
+df["人口増減"].plot.bar(figsize=(10,6))
+plt.show()
+```
+
+### 🔍 解説
+
+* `df["人口増減"] = df["2022年"] - df["2021年"]`：単純な差分計算。
+* 棒グラフにより、人口が増加した地域と減少した地域が明確になる。
+
+---
+
+## ✅ ⑤ 人口増減グラフにY軸範囲指定を追加
+
+```python
+import pandas as pd
+import matplotlib.pyplot as plt
+plt.rcParams["font.family"]="sans-serif"
+plt.rcParams["font.sans-serif"]=["Hiragino Maru Gothic Pro","Hiragino sans","BIZ UDGothic","MS Gothic"]
+
+#CSVファイルをデータフレームで読み込む
+df=pd.read_csv("FEH_00200524_250610233446.csv",index_col="全国・都道府県",encoding="UTF-8")
+
+#2021年と2022年の列データで棒グラフを作って表示する
+df=df.drop("全国",axis=0)
+df["2021年"]=pd.to_numeric(df["2021年"].str.replace(",",""))
+df["2022年"]=pd.to_numeric(df["2022年"].str.replace(",",""))
+df["人口増減"]=df["2022年"]-df["2021年"]
+df=df.sort_values("人口増減",ascending=False)
+df["人口増減"].plot.bar(figsize=(10,6))
+plt.ylim(-40,14000)
+plt.show()
+```
+
+### 🔍 解説
+
+* `plt.ylim(-40,14000)`：Y軸の範囲を固定し、グラフの見た目を整える。
+* 人口減少が極端な都道府県も他と比較しやすくなる。
+- **学習ポイント**：
+    - pandasによるデータフレーム操作（読み込み・変換・ソート・追加）
+    - matplotlibでのグラフ生成とフォント設定
+    - 日本語データの扱いと文字化け防止策（フォント指定）
